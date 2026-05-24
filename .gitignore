@@ -1,10 +1,11 @@
-# Entornos virtuales (cualquier nombre común)
+# Entornos virtuales (todas las variantes)
 env/
 venv/
 .venv/
-venv312/
 venv*/
 env*/
+**/venv*/
+**/env*/
 
 # Caché de Python
 __pycache__/
