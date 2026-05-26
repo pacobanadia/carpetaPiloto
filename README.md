@@ -18,7 +18,7 @@ con Python como puente hacia un broker MQTT propio en linux.
 - pySerial — Short Introduction: [https://pyserial.readthedocs.io/en/latest/shortintro.html](https://pyserial.readthedocs.io/en/latest/tools.html)
 - Eclipse Paho MQTT mosquitto.conf: [(https://mosquitto.org/man/mosquitto-conf-5.html)](https://mosquitto.org/man/mosquitto-conf-5.html)
 - Alswnet. (s. f.). NocheProgramacion/series/mqtt at master · alswnet/NocheProgramacion. GitHub. https://github.com/alswnet/NocheProgramacion/tree/master/series/mqtt
-- ChepeCarlos. (2021, 30 julio). 💻 Aprende a usar Mosquitto_Sub y Mosquitto_Pub para conectar a MQTT [Vídeo]. YouTube. https://www.youtube.com/watch?v=O10JqPeC5SA
+- ChepeCarlos. (s. f.). YouTube. https://www.youtube.com/@chepecarlo/playlists
 ---
 
 ## Partes implementadas
