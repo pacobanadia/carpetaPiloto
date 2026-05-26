@@ -1,24 +1,24 @@
-# Ruta 8 — pySerial + MQTT · Pipeline IoT con ESP32
+# Ruta 8 — pySerial + MQTT ·  IoT con ESP32
 
-**Nombre del estudiante:** [Completar]  
+**Nombre del estudiante:** Daniel Cano Duque  
 **Modalidad:** Individual  
-**Fecha de entrega:** Mayo 2025
+**Fecha de entrega:** 27 Mayo 2026
 
 ---
 
 ## Modalidad elegida
 
 **Ruta 8 — pySerial + MQTT, Opción A:** ESP32 conectado por USB serial a un PC,
-con Python como puente hacia un broker MQTT público (HiveMQ).
+con Python como puente hacia un broker MQTT propio en linux.
 
 ---
 
 ## Documentación y tutoriales seguidos
 
-- pySerial — Short Introduction: https://pyserial.readthedocs.io/en/latest/shortintro.html
-- Eclipse Paho MQTT Python Client: https://eclipse.dev/paho/clients/python/
-- HiveMQ Public Broker (sin configuración): https://www.hivemq.com/public-mqtt-broker/
-
+- pySerial — Short Introduction: [https://pyserial.readthedocs.io/en/latest/shortintro.html](https://pyserial.readthedocs.io/en/latest/tools.html)
+- Eclipse Paho MQTT mosquitto.conf: [(https://mosquitto.org/man/mosquitto-conf-5.html)](https://mosquitto.org/man/mosquitto-conf-5.html)
+- Alswnet. (s. f.). NocheProgramacion/series/mqtt at master · alswnet/NocheProgramacion. GitHub. https://github.com/alswnet/NocheProgramacion/tree/master/series/mqtt
+- ChepeCarlos. (2021, 30 julio). 💻 Aprende a usar Mosquitto_Sub y Mosquitto_Pub para conectar a MQTT [Vídeo]. YouTube. https://www.youtube.com/watch?v=O10JqPeC5SA
 ---
 
 ## Partes implementadas
@@ -49,7 +49,7 @@ consumidor.py  →  data/lecturas.csv  +  alertas en consola
 
 ## Modificación propia
 
-El archivo `controlador_led.py` es la adaptación propia. Combina **publicación y suscripción en un mismo cliente** con un **menú interactivo en consola** y un **modo automático**: el LED se enciende solo cuando el valor del sensor de luz cae por debajo de un umbral configurable (`UMBRAL_OSCURIDAD = 1500`). Esto simula un sistema de iluminación reactivo, no presente en ninguno de los tutoriales seguidos.
+El archivo `controlador_led.py` es la adaptación propia. Combina **publicación y suscripción en un mismo cliente** con un **menú interactivo en consola** y un **modo automático**: el LED se enciende solo cuando el valor del sensor de luz cae por debajo de un umbral configurable (`UMBRAL_OSCURIDAD = 1500`). Esto simula un sistema de iluminación.
 
 Adicionalmente, el `consumidor.py` genera **resúmenes estadísticos periódicos** (promedio, mínimo, máximo) y una **barra de nivel visual** en consola, también como adaptación propia.
 
