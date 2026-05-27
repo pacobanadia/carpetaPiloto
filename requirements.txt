@@ -1,0 +1,5 @@
+# requirements.txt — Ruta 8. pySerial + MQTT
+# Instalar con: pip install -r requirements.txt
+
+pyserial>=3.5       # Comunicación serial con el ESP32
+paho-mqtt>=1.6.1    # Cliente MQTT para publicar y suscribirse al broker
