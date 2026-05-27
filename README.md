@@ -1,74 +1,60 @@
-# Ruta 8 — pySerial + MQTT ·  IoT con ESP32
+# Ruta 8 — pySerial + MQTT: ESP32 con Fotoresistencia y Control de LED
 
-**Nombre del estudiante:** Daniel Cano Duque  
-**Modalidad:** Individual  
-**Fecha de entrega:** 27 Mayo 2026
+**Modalidad elegida:** Ruta 8 — Comunicación serial con pySerial e integración con broker MQTT (Mosquitto).
 
 ---
 
-## Modalidad elegida
+## Tutorial y documentación base
 
-**Ruta 8 — pySerial + MQTT, Opción A:** ESP32 conectado por USB serial a un PC,
-con Python como puente hacia un broker MQTT propio en linux.
+Se siguió la documentación oficial de [paho-mqtt](https://eclipse.dev/paho/clients/python/docs/) para la configuración del cliente MQTT en Python, la referencia de [pySerial](https://pyserial.readthedocs.io/) para la lectura del puerto serial, y la guía de instalación de Mosquitto en Linux para levantar el broker en una máquina virtual Ubuntu.
 
----
-
-## Documentación y tutoriales seguidos
-
-- pySerial — Short Introduction: [https://pyserial.readthedocs.io/en/latest/shortintro.html](https://pyserial.readthedocs.io/en/latest/tools.html)
-- Eclipse Paho MQTT mosquitto.conf: [(https://mosquitto.org/man/mosquitto-conf-5.html)](https://mosquitto.org/man/mosquitto-conf-5.html)
-- Alswnet. (s. f.). NocheProgramacion/series/mqtt at master · alswnet/NocheProgramacion. GitHub. https://github.com/alswnet/NocheProgramacion/tree/master/series/mqtt
-- ChepeCarlos. (s. f.). YouTube. https://www.youtube.com/@chepecarlo/playlists
 ---
 
 ## Partes implementadas
 
-| Archivo                  | Rol en el pipeline                                              |
-|--------------------------|-----------------------------------------------------------------|
-| `esp32_sensor.ino`       | Firmware del ESP32: lee la fotoresistencia y controla el LED   |
-| `scripts/productor.py`   | Lee el puerto serial y publica en `sensor/luz` y `sensor/led` |
-| `scripts/consumidor.py`  | Se suscribe a ambos tópicos, registra en CSV y genera alertas  |
-| `scripts/controlador_led.py` | Menú interactivo para controlar el LED + modo automático   |
+Se implementaron tres scripts Python que forman el pipeline completo:
 
-**Pipeline completo:**
+- **`productor.py`** — Lee líneas seriales del ESP32 (`LUZ:<valor>,LED:<estado>`), las valida y publica en los tópicos `sensor/luz` y `sensor/led`. También escucha `led/control` y reenvía comandos al ESP32 por serial.
+- **`controlador_led.py`** — Menú interactivo en consola que publica comandos en `led/control` y recibe retroalimentación del sensor de luz en tiempo real.
+- **`consumidor.py`** — Suscriptor que recibe ambos tópicos (`sensor/#`) y distribuye cada mensaje a tres procesadores independientes: guardado en CSV, alerta por umbral de luz y resumen estadístico.
 
-```
-ESP32 (LDR + LED)
-  │ USB Serial "LUZ:xxxx,LED:x\n"
-  ▼
-productor.py  (pySerial → parseo → validación)
-  │ MQTT publish → sensor/luz  /  sensor/led
-  ▼
-broker.hivemq.com:1883
-  │ MQTT subscribe sensor/#
-  ▼
-consumidor.py  →  data/lecturas.csv  +  alertas en consola
-```
+Del lado del hardware, se programó un **ESP32** con una fotoresistencia (pin 33) y un LED (pin 26), usando `millis()` para enviar lecturas cada 3 segundos sin bloquear la escucha de comandos seriales.
 
 ---
 
 ## Modificación propia
 
-El archivo `controlador_led.py` es la adaptación propia. Combina **publicación y suscripción en un mismo cliente** con un **menú interactivo en consola** y un **modo automático**: el LED se enciende solo cuando el valor del sensor de luz cae por debajo de un umbral configurable (`UMBRAL_OSCURIDAD = 1500`). Esto simula un sistema de iluminación.
+La adaptación propia se realizó en dos niveles:
 
-Adicionalmente, el `consumidor.py` genera **resúmenes estadísticos periódicos** (promedio, mínimo, máximo) y una **barra de nivel visual** en consola, también como adaptación propia.
+1. **`controlador_led.py`** incorpora un **modo automático**: si el valor de la fotoresistencia cae por debajo de un umbral configurable (por defecto 1500/4095), el LED se enciende automáticamente, simulando un sistema de iluminación reactiva. El menú permite alternar entre modo manual y automático en tiempo de ejecución.
+2. **`consumidor.py`** aplica el patrón de **clase abstracta** (`ProcesadorMensaje`) para separar responsabilidades: el consumidor MQTT no contiene lógica de negocio propia, sino que delega cada mensaje a una lista intercambiable de procesadores concretos.
 
 ---
 
 ## Qué aprendimos
 
-- La diferencia entre `loop_forever()` (bloqueante) y `loop_start()` (hilo de fondo),
-  y cuándo usar cada uno.
-- Que el ESP32 reinicia al abrirse el puerto serial, por lo que `time.sleep(2)` en
-  `conectar_serial()` es imprescindible para no leer datos corruptos del arranque.
-- Cómo manejar errores de serial sin detener el programa (`SerialException` en un
-  `try/except` dentro del bucle de lectura).
-- La importancia de definir un formato de mensaje claro y consistente desde el firmware
-  (`"LUZ:<n>,LED:<m>\n"`) antes de escribir el código Python.
+- Cómo establecer comunicación bidireccional entre Python y un microcontrolador mediante pySerial, incluyendo el manejo del reinicio del ESP32 al abrir el puerto.
+- La arquitectura publicador/suscriptor de MQTT y el rol del broker como intermediario desacoplado.
+- El uso de `loop_start()` para correr el cliente MQTT en un hilo de fondo, permitiendo que el menú de consola opere en paralelo sin bloquear la recepción de mensajes.
+- Cómo el uso de `millis()` en el ESP32 permite multitarea cooperativa sin `delay()`.
 
-## Dificultades encontradas
+---
 
-- Identificar el puerto COM correcto en Windows requirió abrir el Administrador de
-  dispositivos; en Linux habría sido `/dev/ttyUSB0`.
-- El broker público HiveMQ no garantiza entrega exclusiva: si otros proyectos usaban
-  los mismos tópicos genéricos, llegaban mensajes ajenos. Se resolvió usando un broker local, que corre desde una VM.
+## Dificultad encontrada
+
+Al ejecutar `productor.py` se presentó un error de importación del módulo `serial`:
+
+```
+KeyError: '...\env\Lib\site-packages\serial\abc'
+```
+
+La causa fue un **conflicto de nombres** entre `pyserial` (el paquete correcto) y el paquete `serial` de PyPI, ambos instalados en el entorno virtual y con la misma carpeta `serial/` en `site-packages`. Python cargaba el paquete incorrecto y fallaba durante la importación. La solución fue desinstalar ambos y reinstalar únicamente `pyserial` y `paho-mqtt`.
+
+---
+
+## Anexo — Video explicativo
+
+> El siguiente video presenta la demostración en funcionamiento del sistema completo: conexión serial del ESP32, publicación de datos al broker MQTT, control del LED desde el menú interactivo y visualización de lecturas en el consumidor.
+
+📹 **[Ver video explicativo](#)**
+*(Reemplazar `#` con el enlace real al video)*
