@@ -71,5 +71,4 @@ Adicionalmente, el `consumidor.py` genera **resúmenes estadísticos periódicos
 - Identificar el puerto COM correcto en Windows requirió abrir el Administrador de
   dispositivos; en Linux habría sido `/dev/ttyUSB0`.
 - El broker público HiveMQ no garantiza entrega exclusiva: si otros proyectos usaban
-  los mismos tópicos genéricos, llegaban mensajes ajenos. Se resolvió usando tópicos
-  con un prefijo más específico (`sensor/luz` en lugar de `luz`).
+  los mismos tópicos genéricos, llegaban mensajes ajenos. Se resolvió usando un broker local, que corre desde una VM.
