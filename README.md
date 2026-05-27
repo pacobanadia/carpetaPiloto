@@ -56,5 +56,5 @@ La causa fue un **conflicto de nombres** entre `pyserial` (el paquete correcto) 
 
 > El siguiente video presenta la demostración en funcionamiento del sistema completo: conexión serial del ESP32, publicación de datos al broker MQTT, control del LED desde el menú interactivo y visualización de lecturas en el consumidor.
 
-📹 **[Ver video explicativo](#)**
+📹 **[Ver video explicativo](https://youtu.be/j-grUS0jyYI)**
 *(Reemplazar `#` con el enlace real al video)*
